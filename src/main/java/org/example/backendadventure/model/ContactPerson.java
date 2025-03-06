@@ -25,6 +25,15 @@ public class ContactPerson {
     @JsonBackReference
     private Set<Reservation> reservations = new HashSet<>();
 
+    public ContactPerson() {}
+
+    public ContactPerson(String firstName, String lastName, String phoneNumber, String email) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.phoneNumber = phoneNumber;
+        this.email = email;
+    }
+
     public int getId() {
         return id;
     }
