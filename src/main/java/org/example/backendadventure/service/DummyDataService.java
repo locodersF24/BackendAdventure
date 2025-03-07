@@ -12,21 +12,21 @@ import java.time.LocalDate;
 import java.util.*;
 
 @Service
-public class InitService {
+public class DummyDataService {
 
     private final ReservationRepository reservationRepository;
     private final ActivityRepository activityRepository;
     private final ContactPersonRepository contactPersonRepository;
 
-    public InitService(ReservationRepository reservationRepository,
-                          ActivityRepository activityRepository,
-                          ContactPersonRepository contactPersonRepository) {
+    public DummyDataService(ReservationRepository reservationRepository,
+                            ActivityRepository activityRepository,
+                            ContactPersonRepository contactPersonRepository) {
         this.reservationRepository = reservationRepository;
         this.activityRepository = activityRepository;
         this.contactPersonRepository = contactPersonRepository;
     }
 
-    public void initData() {
+    public void init() {
 
         int numberOfGeneratedReservations = 50;
 
