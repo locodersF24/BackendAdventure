@@ -22,8 +22,12 @@ public class LoginProfileService {
         return loginProfileRepository.findAll();
     }
 
+    //Checks if the attributes in profile has a match in the database
     public boolean isAbleToLogin(LoginProfile loginProfile) {
-        return getAllLoginProfiles().contains(loginProfile);
+        return getAllLoginProfiles().stream()
+                .anyMatch(profile ->
+                        profile.getUsername().equalsIgnoreCase(loginProfile.getUsername()) &&
+                        profile.getPassword().equals(loginProfile.getPassword()));
     }
 
     //***END CLASS***---------------------------------------------------------------------------------------------------

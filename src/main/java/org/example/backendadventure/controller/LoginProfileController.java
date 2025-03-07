@@ -2,18 +2,16 @@ package org.example.backendadventure.controller;
 
 import org.example.backendadventure.model.login.LoginProfile;
 import org.example.backendadventure.service.loginservice.LoginProfileService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+@CrossOrigin // This annotation allows any domain to access the endpoint. In our case on our localhost port 8080
 @RestController
-@RequestMapping("login")
 public class LoginProfileController {
 
     //***ATTRIBUTES***--------------------------------------------------------------------------------------------------
-    @Autowired
-    LoginProfileService loginProfileService;
+    private final LoginProfileService loginProfileService;
 
     //***CONSTRUCTOR***-------------------------------------------------------------------------------------------------
     public LoginProfileController(LoginProfileService loginProfileService) {
@@ -23,9 +21,7 @@ public class LoginProfileController {
     //***POST MAPPING METHODS***----------------------------------------------------------------------------------------
     @PostMapping("/login")
     public ResponseEntity<Boolean> isAbleToLogin(@RequestBody LoginProfile loginProfile) {
-        return loginProfileService.isAbleToLogin(loginProfile)
-                ? ResponseEntity.ok(true)
-                : ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(false);
+        return new ResponseEntity<>(loginProfileService.isAbleToLogin(loginProfile), HttpStatus.OK);
     }
 
     //***END CLASS***---------------------------------------------------------------------------------------------------
