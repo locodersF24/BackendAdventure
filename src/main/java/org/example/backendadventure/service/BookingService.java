@@ -17,7 +17,11 @@ public class BookingService {
     }
 
     public List<Booking> readAllBookings() {
-        return reservationRepository.findAll().stream().map(Reservation::toBooking).toList();
+        return reservationRepository
+            .findAll()
+            .stream()
+            .map(Reservation::toBooking)
+            .toList();
     }
 
 }
