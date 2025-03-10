@@ -97,10 +97,11 @@ public class Reservation {
             default -> "Unknown";
         };
 
-        return new Booking(numberOfPeople,
+        return new Booking(id,
+                activity.getName(),
+                numberOfPeople,
                 date,
                 timeInterval,
-                activity.getName(),
                 contactPerson.getFirstName(),
                 contactPerson.getLastName(),
                 contactPerson.getPhoneNumber(),

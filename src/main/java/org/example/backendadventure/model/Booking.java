@@ -2,10 +2,12 @@ package org.example.backendadventure.model;
 
 import java.time.LocalDate;
 
-public record Booking(int numberOfPeople,
+// DTO: data transfer object
+public record Booking(int reservationId,
+                      String activity, // Activity name
+                      int numberOfPeople,
                       LocalDate date,
                       String timeInterval, // From time slot code
-                      String activity, // Activity name
                       // Rest from contact person
                       String firstName,
                       String lastName,
