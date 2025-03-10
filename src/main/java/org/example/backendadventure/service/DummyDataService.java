@@ -32,10 +32,10 @@ public class DummyDataService {
 
         // Make Activities
         List<Activity> activities = new ArrayList<>();
-        activities.add(activityRepository.save(new Activity("Gokart", 10, 10)));
-        activities.add(activityRepository.save(new Activity("Sumowrestling", 10, 10)));
+        activities.add(activityRepository.save(new Activity("Go-kart", 10, 10)));
         activities.add(activityRepository.save(new Activity("Minigolf", 10, 10)));
         activities.add(activityRepository.save(new Activity("Paintball", 10, 10)));
+        activities.add(activityRepository.save(new Activity("Sumo Wrestling", 10, 10)));
 
         // Make random strings
         List<String> randomNames = new ArrayList<>();

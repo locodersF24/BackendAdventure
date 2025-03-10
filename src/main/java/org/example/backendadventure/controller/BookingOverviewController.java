@@ -5,11 +5,11 @@ import org.example.backendadventure.service.BookingService;
 import org.example.backendadventure.service.DummyDataService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.time.format.DateTimeParseException;
 import java.util.List;
+import java.util.Map;
 
 @CrossOrigin // Important for JavaScript
 @RestController
@@ -30,9 +30,13 @@ public class BookingOverviewController {
     }
 
     @GetMapping("/bookings")
-    public ResponseEntity<List<Booking>> readAll() {
-        List<Booking> allBookings = bookingService.readAllBookings();
-        return new ResponseEntity<>(allBookings, HttpStatus.OK);
+    public ResponseEntity<List<Booking>> search(@RequestParam Map<String, String> searchParams) {
+        try {
+            List<Booking> bookings = bookingService.searchBookings(searchParams);
+            return new ResponseEntity<>(bookings, HttpStatus.OK);
+        } catch (DateTimeParseException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
     }
 
 }
