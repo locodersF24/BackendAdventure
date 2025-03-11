@@ -4,6 +4,8 @@ import org.example.backendadventure.model.Activity;
 import org.example.backendadventure.model.Booking;
 import org.example.backendadventure.model.ContactPerson;
 import org.example.backendadventure.model.Reservation;
+import org.example.backendadventure.repository.ActivityRepository;
+import org.example.backendadventure.repository.ContactPersonRepository;
 import org.example.backendadventure.repository.ReservationRepository;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
@@ -13,15 +15,33 @@ import java.lang.reflect.Field;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.*;
-import java.util.zip.DataFormatException;
 
 @Service
 public class BookingService {
 
     private final ReservationRepository reservationRepository;
+    private final ActivityRepository activityRepository;
 
-    public BookingService(ReservationRepository reservationRepository) {
+    public BookingService(ReservationRepository reservationRepository, ActivityRepository activityRepository) {
         this.reservationRepository = reservationRepository;
+        this.activityRepository = activityRepository;
+    }
+
+    public boolean updateBooking(Booking booking) {
+        Optional<Reservation> reservationOptional = reservationRepository.findById(booking.reservationId());
+        if (reservationOptional.isEmpty()) {
+            return false;
+        }
+        Reservation reservation  = reservationOptional.get();
+        if (!reservation.changeByBooking(booking, activityRepository.findAll())) {
+            return false;
+        }
+        reservationRepository.save(reservation);
+        return true;
+    }
+
+    public Booking findById(int id) throws NoSuchElementException {
+        return reservationRepository.findById(id).get().toBooking();
     }
 
     private List<String> getPaths(Field[] fields, String prefix) {

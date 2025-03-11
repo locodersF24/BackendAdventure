@@ -56,9 +56,9 @@ public class DummyDataService {
         // Make reservations
         for (int i = 0; i < numberOfGeneratedReservations; i++) {
             Reservation reservation = new Reservation(
-                    randomGenerator.nextInt(10),
+                    randomGenerator.nextInt(9) + 1,
                     LocalDate.now(),
-                    randomGenerator.nextInt(10),
+                    randomGenerator.nextInt(9) + 1,
                     activities.get(randomGenerator.nextInt(activities.size())),
                     contactPersonRepository.save(new ContactPerson(
                             randomNames.removeLast(),
