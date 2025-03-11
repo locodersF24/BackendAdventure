@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 @CrossOrigin // Important for JavaScript
 @RestController
@@ -24,7 +25,7 @@ public class BookingOverviewController {
     }
 
     @GetMapping("/init")
-    public ResponseEntity initDummyData() {
+    public ResponseEntity<Booking> initDummyData() {
         dummyDataService.init();
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -32,11 +33,30 @@ public class BookingOverviewController {
     @GetMapping("/bookings")
     public ResponseEntity<List<Booking>> search(@RequestParam Map<String, String> searchParams) {
         try {
-            List<Booking> bookings = bookingService.searchBookings(searchParams);
-            return new ResponseEntity<>(bookings, HttpStatus.OK);
+            return new ResponseEntity<>(bookingService.searchBookings(searchParams), HttpStatus.OK);
         } catch (DateTimeParseException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
+    }
+
+    @GetMapping("/bookings/{id}")
+    public ResponseEntity<Booking> findById(@PathVariable int id) {
+        try {
+            return new ResponseEntity<>(bookingService.findById(id), HttpStatus.OK);
+        } catch (NoSuchElementException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @PutMapping("/bookings/{id}")
+    public ResponseEntity<Booking> update(@PathVariable int id, @RequestBody Booking booking) {
+        if (id != booking.reservationId()) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        if (!bookingService.updateBooking(booking)) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
 }
