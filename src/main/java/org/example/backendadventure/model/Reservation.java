@@ -3,6 +3,7 @@ package org.example.backendadventure.model;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 public class Reservation {
@@ -82,29 +83,52 @@ public class Reservation {
         this.contactPerson = contactPerson;
     }
 
+    public boolean changeByBooking(Booking booking, List<Activity> allActivities) {
+
+        // No such Activity?
+        if (!allActivities
+                .stream()
+                .map(Activity::getName)
+                .toList()
+                .contains(booking.activity())) {
+            return false;
+        }
+
+        // Reservation attributes
+        numberOfPeople = booking.numberOfPeople();
+        date = booking.date();
+        timeSlotCode = booking.timeSlotCode();
+
+        // ContactPerson attributes
+        if (contactPerson == null) {
+            contactPerson = new ContactPerson();
+        }
+        contactPerson.setFirstName(booking.firstName());
+        contactPerson.setLastName(booking.lastName());
+        contactPerson.setPhoneNumber(booking.phoneNumber());
+        contactPerson.setEmail(booking.email());
+
+        // Activity
+        for (Activity activity : allActivities) {
+            if (activity.getName().equals(booking.activity())) {
+                this.activity = activity;
+                break;
+            }
+        }
+        return true;
+    }
+
     public Booking toBooking() {
-
-        String timeInterval = switch (timeSlotCode) {
-            case 1 -> "08:00-09:00";
-            case 2 -> "09:00-10:00";
-            case 3 -> "10:00-11:00";
-            case 4 -> "11:00-12:00";
-            case 5 -> "12:00-13:00";
-            case 6 -> "13:00-14:00";
-            case 7 -> "14:00-15:00";
-            case 8 -> "15:00-16:00";
-            case 9 -> "16:00-17:00";
-            default -> "Unknown";
-        };
-
-        return new Booking(id,
+        return new Booking(
+                id,
                 activity.getName(),
                 numberOfPeople,
                 date,
-                timeInterval,
+                timeSlotCode,
                 contactPerson.getFirstName(),
                 contactPerson.getLastName(),
                 contactPerson.getPhoneNumber(),
-                contactPerson.getEmail());
+                contactPerson.getEmail()
+        );
     }
 }
