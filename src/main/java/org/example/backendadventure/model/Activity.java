@@ -23,6 +23,14 @@ public class Activity {
     @JsonBackReference
     private Set<Reservation> reservations = new HashSet<>();
 
+    public Activity() {}
+
+    public Activity(String name, int maxNumberOfPeople, int ageLimit) {
+        this.name = name;
+        this.maxNumberOfPeople = maxNumberOfPeople;
+        this.ageLimit = ageLimit;
+    }
+
     public int getId() {
         return id;
     }
