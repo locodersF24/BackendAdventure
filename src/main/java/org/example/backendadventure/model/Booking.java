@@ -17,4 +17,15 @@ public record Booking(
         String lastName,
         String phoneNumber,
         String email
-) {}
+) {
+
+    public String toJSONString() {
+        return this.toString()
+                .substring(7)
+                .replace("[", "{\"")
+                .replace("=", "\" : \"")
+                .replace(", ", "\",\"")
+                .replace("]", "\"}");
+    }
+
+}
