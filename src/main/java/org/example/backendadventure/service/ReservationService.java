@@ -49,24 +49,24 @@ public class ReservationService {
     }
 
     public List<Reservation> searchReservations(Map<String, String> searchParams) {
-
-        if (searchParams.isEmpty()) return reservationRepository.findAll();
-
-        System.out.println(searchParams);
+        Map<String, String> params = new HashMap<>();
+        searchParams.forEach((key, value) -> { if (!value.isBlank()) params.put(key, value); });
+        if (params.isEmpty()) return reservationRepository.findAll();
+        System.out.println(params);
 
         // Making the probe
         Activity activity = new Activity();
-        activity.setName(searchParams.get("activity"));
+        activity.setName(params.get("activity"));
         ContactPerson contactPerson = new ContactPerson();
-        contactPerson.setFirstName(searchParams.get("firstName"));
-        contactPerson.setLastName(searchParams.get("lastName"));
-        contactPerson.setPhoneNumber(searchParams.get("phoneNumber"));
-        contactPerson.setEmail(searchParams.get("email"));
+        contactPerson.setFirstName(params.get("firstName"));
+        contactPerson.setLastName(params.get("lastName"));
+        contactPerson.setPhoneNumber(params.get("phoneNumber"));
+        contactPerson.setEmail(params.get("email"));
         Reservation probe = new Reservation();
         probe.setActivity(activity);
         probe.setContactPerson(contactPerson);
-        if (searchParams.containsKey("date")) {
-            probe.setDate(LocalDate.parse(searchParams.get("date")));
+        if (params.containsKey("date")) {
+            probe.setDate(LocalDate.parse(params.get("date")));
         }
 
         // Collecting paths
