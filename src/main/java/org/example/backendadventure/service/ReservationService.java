@@ -85,6 +85,10 @@ public class ReservationService {
         return reservationRepository.findAll(Example.of(probe, matcher));
     }
 
+    public Optional<Reservation> getOne(int id) {
+        return reservationRepository.findById(id);
+    }
+
     public boolean delete(int id) {
         if (reservationRepository.findById(id).isEmpty()) return false;
         reservationRepository.deleteById(id);

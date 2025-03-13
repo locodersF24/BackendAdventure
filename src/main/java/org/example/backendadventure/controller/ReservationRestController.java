@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @CrossOrigin
 @RestController
@@ -24,6 +25,13 @@ public class ReservationRestController {
     @GetMapping("/reservations")
     public ResponseEntity<List<Reservation>> search(@RequestParam Map<String, String> searchParams) {
         return ResponseEntity.ok(reservationService.searchReservations(searchParams));
+    }
+
+    @GetMapping("/reservations/{id}")
+    public ResponseEntity<Reservation> getOne(@PathVariable int id) {
+        Optional<Reservation> reservation = reservationService.getOne(id);
+        if (reservation.isEmpty()) return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(reservation.get());
     }
 
     @DeleteMapping("/reservations/{id}")
