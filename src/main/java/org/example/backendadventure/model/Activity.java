@@ -1,35 +1,26 @@
 package org.example.backendadventure.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
 @Entity
 public class Activity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // Autogenerates id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    @Column(unique=true)
+    @Column(unique = true)
     private String name;
     @Column(nullable = false)
     private int maxNumberOfPeople;
     @Column(nullable = false)
     private int ageLimit;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "activity")
-    @JsonBackReference
-    private Set<Reservation> reservations = new HashSet<>();
-
-    public Activity() {}
-
-    public Activity(String name, int maxNumberOfPeople, int ageLimit) {
-        this.name = name;
-        this.maxNumberOfPeople = maxNumberOfPeople;
-        this.ageLimit = ageLimit;
-    }
+    @OneToMany(mappedBy = "activity", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @JsonManagedReference
+    private List<TimeSlot> timeSlots;
 
     public int getId() {
         return id;
@@ -62,4 +53,13 @@ public class Activity {
     public void setAgeLimit(int ageLimit) {
         this.ageLimit = ageLimit;
     }
+
+    public List<TimeSlot> getTimeSlots() {
+        return timeSlots;
+    }
+
+    public void setTimeSlots(List<TimeSlot> timeSlots) {
+        this.timeSlots = timeSlots;
+    }
+
 }
