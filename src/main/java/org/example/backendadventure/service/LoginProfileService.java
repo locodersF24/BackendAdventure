@@ -1,7 +1,7 @@
-package org.example.backendadventure.service.loginservice;
+package org.example.backendadventure.service;
 
-import org.example.backendadventure.model.login.LoginProfile;
-import org.example.backendadventure.repository.loginrepo.LoginProfileRepository;
+import org.example.backendadventure.model.LoginProfile;
+import org.example.backendadventure.repository.LoginProfileRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
