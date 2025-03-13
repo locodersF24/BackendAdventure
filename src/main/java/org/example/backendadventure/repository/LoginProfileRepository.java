@@ -1,8 +1,7 @@
-package org.example.backendadventure.repository.loginrepo;
+package org.example.backendadventure.repository;
 
-import org.example.backendadventure.model.login.LoginProfile;
+import org.example.backendadventure.model.LoginProfile;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface LoginProfileRepository extends JpaRepository<LoginProfile, Integer> {
-
 }

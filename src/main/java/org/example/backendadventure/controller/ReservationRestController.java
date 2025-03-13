@@ -1,23 +1,58 @@
 package org.example.backendadventure.controller;
+
 import org.example.backendadventure.model.Reservation;
-import org.example.backendadventure.repository.ReservationRepository;
+import org.example.backendadventure.model.ReservationDTO;
 import org.example.backendadventure.service.ReservationService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Map;
 
-@CrossOrigin(origins = "*")
+@CrossOrigin
 @RestController
 public class ReservationRestController {
 
-    ReservationService reservationService;
+    private final ReservationService reservationService;
 
     public ReservationRestController(ReservationService reservationService) {
         this.reservationService = reservationService;
     }
+
+    @GetMapping("/reservations")
+    public ResponseEntity<List<Reservation>> search(@RequestParam Map<String, String> searchParams) {
+        return ResponseEntity.ok(reservationService.searchReservations(searchParams));
+    }
+
+    @DeleteMapping("/reservations/{id}")
+    public ResponseEntity<String> delete(@PathVariable int id) {
+        if (!reservationService.delete(id)) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/reservations/{id}")
+    public ResponseEntity<String> update(@PathVariable int id, @RequestBody ReservationDTO reservationDTO) {
+        if (id != reservationDTO.reservationId()) {
+            return ResponseEntity.badRequest().build();
+        }
+        if (!reservationService.updateFromDTO(reservationDTO)) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok("saved");
+    }
+
+    @PostMapping("/reservations")
+    public ResponseEntity<Integer> create(@RequestBody ReservationDTO reservationDTO) {
+        int id = reservationService.createFromDTO(reservationDTO);
+        if (id == 0) return ResponseEntity.badRequest().build();
+        return new ResponseEntity<>(id, HttpStatus.CREATED);
+    }
+
+    //
 
     @PostMapping("/reservation")
     public ResponseEntity<Reservation> createReservation(@RequestBody Reservation reservation) {
@@ -44,10 +79,3 @@ public class ReservationRestController {
     }
 
 }
-
-// Dummy data for tilgængelighed
-//        Map<String, String> availability = new HashMap<>();
-//        availability.put("10:00", "Available");
-//        availability.put("12:00", "Fully Booked");
-//        availability.put("14:00", "Available");
-//        availability.put("16:00", "Limited Spots");

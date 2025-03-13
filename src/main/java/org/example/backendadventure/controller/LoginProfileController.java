@@ -1,7 +1,7 @@
 package org.example.backendadventure.controller;
 
-import org.example.backendadventure.model.login.LoginProfile;
-import org.example.backendadventure.service.loginservice.LoginProfileService;
+import org.example.backendadventure.model.LoginProfile;
+import org.example.backendadventure.service.LoginProfileService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

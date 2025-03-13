@@ -8,8 +8,13 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface ReservationRepository extends JpaRepository<Reservation, Integer> {
-        // Find reservationer baseret på aktivitet og dato
-        @Query("SELECT r FROM Reservation r WHERE r.activity.name = :activity AND r.date = :date")
-        List<Reservation> findAvailability(@Param("activity") String activity, @Param("date") LocalDate date);
-    }
 
+    List<Reservation> findByDateAndActivity_id(LocalDate date, int activityId);
+
+    //
+
+    // Find reservationer baseret på aktivitet og dato
+    @Query("SELECT r FROM Reservation r WHERE r.activity.name = :activity AND r.date = :date")
+    List<Reservation> findAvailability(@Param("activity") String activity, @Param("date") LocalDate date);
+
+}

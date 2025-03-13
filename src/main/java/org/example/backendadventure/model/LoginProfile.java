@@ -1,4 +1,4 @@
-package org.example.backendadventure.model.login;
+package org.example.backendadventure.model;
 
 import jakarta.persistence.*;
 
