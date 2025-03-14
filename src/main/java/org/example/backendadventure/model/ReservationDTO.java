@@ -32,4 +32,13 @@ public record ReservationDTO(
         reservation.setDate(this.date);
     }
 
+    public String toJSONString() {
+        return this.toString()
+                .substring(8)
+                .replace("[", "{\"")
+                .replace("=", "\" : \"")
+                .replace(", ", "\",\"")
+                .replace("]", "\"}");
+    }
+
 }
