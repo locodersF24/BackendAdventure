@@ -1,10 +1,9 @@
 package org.example.backendadventure.service;
 
 import org.example.backendadventure.model.Activity;
-import org.example.backendadventure.model.Reservation;
 import org.example.backendadventure.model.TimeSlot;
 import org.example.backendadventure.repository.ActivityRepository;
-import org.example.backendadventure.repository.ReservationRepository;
+import org.example.backendadventure.repository.AvailabilityRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -14,11 +13,11 @@ import java.util.*;
 public class ActivityService {
 
     private final ActivityRepository activityRepository;
-    private final ReservationRepository reservationRepository;
+    private final AvailabilityRepository availabilityRepository;
 
-    public ActivityService(ActivityRepository activityRepository, ReservationRepository reservationRepository) {
+    public ActivityService(ActivityRepository activityRepository, AvailabilityRepository availabilityRepository) {
         this.activityRepository = activityRepository;
-        this.reservationRepository = reservationRepository;
+        this.availabilityRepository = availabilityRepository;
     }
 
     public List<Activity> getActivities() {
@@ -32,23 +31,10 @@ public class ActivityService {
         if (activity.isEmpty()) return new ArrayList<>();
 
         // No date
-        List<TimeSlot> timeSlots = activity.get().getTimeSlots();
-        if (date == null) return timeSlots;
+        if (date == null) return activity.get().getTimeSlots();
 
-        // With available
-        Map<Integer, Integer> timeSlotIdToSum = new HashMap<>();
-        timeSlots.forEach(timeSlot -> timeSlotIdToSum.put(timeSlot.getId(), 0));
-        List<Reservation> reservations = reservationRepository.findByDateAndActivity_id(date, activityId);
-        for (Reservation reservation : reservations) {
-            timeSlotIdToSum.computeIfPresent(
-                    reservation.getTimeSlot().getId(),
-                    (k, v) -> v + reservation.getNumberOfPeople()
-            );
-        }
-        timeSlots.forEach(timeSlot -> {
-            timeSlot.setAvailable(activity.get().getMaxNumberOfPeople() - timeSlotIdToSum.get(timeSlot.getId()));
-        });
-        return timeSlots;
+        // With availability
+        return availabilityRepository.timeSlotsWithAvailable(activity.get(), date);
     }
 
 }

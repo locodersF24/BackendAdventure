@@ -36,27 +36,24 @@ public class ReservationRestController {
 
     @DeleteMapping("/reservations/{id}")
     public ResponseEntity<String> delete(@PathVariable int id) {
-        if (!reservationService.delete(id)) {
-            return ResponseEntity.notFound().build();
-        }
+        if (!reservationService.delete(id)) return ResponseEntity.notFound().build();
         return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/reservations/{id}")
     public ResponseEntity<String> update(@PathVariable int id, @RequestBody ReservationDTO reservationDTO) {
-        if (id != reservationDTO.reservationId()) {
-            return ResponseEntity.badRequest().build();
-        }
-        if (!reservationService.updateFromDTO(reservationDTO)) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok("saved");
+        if (id != reservationDTO.reservationId()) return ResponseEntity.badRequest().build();
+        Boolean b = reservationService.updateFromDTO(reservationDTO);
+        if (b == null) return ResponseEntity.notFound().build();
+        if (!b) return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     @PostMapping("/reservations")
     public ResponseEntity<Integer> create(@RequestBody ReservationDTO reservationDTO) {
         int id = reservationService.createFromDTO(reservationDTO);
-        if (id == 0) return ResponseEntity.badRequest().build();
+        if (id == -1) return ResponseEntity.badRequest().build();
+        if (id == -2) ResponseEntity.status(HttpStatus.CONFLICT).build();
         return new ResponseEntity<>(id, HttpStatus.CREATED);
     }
 

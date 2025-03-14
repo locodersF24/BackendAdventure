@@ -1,88 +1,44 @@
 package org.example.backendadventure.service;
 
 import org.example.backendadventure.model.*;
-import org.example.backendadventure.repository.ActivityRepository;
-import org.example.backendadventure.repository.ContactPersonRepository;
-import org.example.backendadventure.repository.ReservationRepository;
-import org.example.backendadventure.repository.TimeSlotRepository;
-import org.springframework.data.domain.Example;
-import org.springframework.data.domain.ExampleMatcher;
+import org.example.backendadventure.repository.*;
 import org.springframework.stereotype.Service;
 
-import java.lang.reflect.Field;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
+import java.util.function.Predicate;
 
 @Service
 public class ReservationService {
 
     private final ReservationRepository reservationRepository;
+    private final ReservationSearchRepository searchRepository;
     private final ActivityRepository activityRepository;
+    private final AvailabilityRepository availabilityRepository;
     private final TimeSlotRepository timeSlotRepository;
     private final ContactPersonRepository contactPersonRepository;
 
     public ReservationService(ReservationRepository reservationRepository,
+                              ReservationSearchRepository searchRepository,
                               ActivityRepository activityRepository,
+                              AvailabilityRepository availabilityRepository,
                               ContactPersonRepository contactPersonRepository,
                               TimeSlotRepository timeSlotRepository) {
         this.reservationRepository = reservationRepository;
+        this.searchRepository = searchRepository;
         this.activityRepository = activityRepository;
+        this.availabilityRepository = availabilityRepository;
         this.contactPersonRepository = contactPersonRepository;
         this.timeSlotRepository = timeSlotRepository;
     }
 
-    private List<String> getPaths(Field[] fields, String prefix) {
-        System.out.print("Include in search: ");
-        List<String> attributes = new ArrayList<>();
-        for (Field field : fields) {
-            if (!field.getType().equals(String.class) && !field.getType().equals(LocalDate.class)) {
-                attributes.add(prefix + field.getName());
-            } else {
-                System.out.print(field.getName() + ", ");
-            }
-        }
-        System.out.print("\nExclude in search: ");
-        attributes.forEach(System.out::print);
-        System.out.println();
-        return attributes;
-    }
-
     public List<Reservation> searchReservations(Map<String, String> searchParams) {
-        Map<String, String> params = new HashMap<>();
-        searchParams.forEach((key, value) -> { if (!value.isBlank()) params.put(key, value); });
-        if (params.isEmpty()) return reservationRepository.findAll();
-        System.out.println(params);
-
-        // Making the probe
-        Activity activity = new Activity();
-        activity.setName(params.get("activity"));
-        ContactPerson contactPerson = new ContactPerson();
-        contactPerson.setFirstName(params.get("firstName"));
-        contactPerson.setLastName(params.get("lastName"));
-        contactPerson.setPhoneNumber(params.get("phoneNumber"));
-        contactPerson.setEmail(params.get("email"));
-        Reservation probe = new Reservation();
-        probe.setActivity(activity);
-        probe.setContactPerson(contactPerson);
-        if (params.containsKey("date")) {
-            probe.setDate(LocalDate.parse(params.get("date")));
-        }
-
-        // Collecting paths
-        List<String> pathList = new ArrayList<>();
-        pathList.addAll(getPaths(Reservation.class.getDeclaredFields(), ""));
-        pathList.addAll(getPaths(Activity.class.getDeclaredFields(), "activity."));
-        pathList.addAll(getPaths(ContactPerson.class.getDeclaredFields(), "contactPerson."));
-        pathList.addAll(getPaths(TimeSlot.class.getDeclaredFields(), "timeSlot."));
-        String[] pathArray = pathList.toArray(String[]::new);
-
-        // Making the matcher
-        ExampleMatcher matcher = ExampleMatcher
-                .matchingAll()
-                .withIgnorePaths(pathArray);
-
-        return reservationRepository.findAll(Example.of(probe, matcher));
+        Map<String, String> noBlanks = new HashMap<>();
+        searchParams.forEach((key, value) -> {
+            if (value != null && !value.isBlank()) noBlanks.put(key, value);
+        });
+        return searchRepository.search(noBlanks);
     }
 
     public Optional<Reservation> getOne(int id) {
@@ -95,11 +51,12 @@ public class ReservationService {
         return true;
     }
 
-    public boolean updateFromDTO(ReservationDTO reservationDTO) {
+    public Boolean updateFromDTO(ReservationDTO reservationDTO) {
         Optional<Reservation> reservation = reservationRepository.findById(reservationDTO.reservationId());
-        if (reservation.isEmpty()) return false;
+        if (reservation.isEmpty()) return null;
         reservationDTO.update(reservation.get());
         reservationDTO.update(reservation.get().getContactPerson());
+        if (availabilityRepository.isNumberOfPeopleIsTooHigh(reservation.get())) return false;
         reservationRepository.save(reservation.get());
         return true;
     }
@@ -112,12 +69,13 @@ public class ReservationService {
         reservation.setContactPerson(contactPerson);
         contactPersonRepository.save(contactPerson);
         Optional<TimeSlot> timeSlot = timeSlotRepository.findById(reservationDTO.timeSlotId());
-        if (timeSlot.isEmpty()) return 0;
-        if (timeSlot.get().getActivity().getId() != reservationDTO.activityId()) return 0;
+        if (timeSlot.isEmpty()) return -1;
+        if (timeSlot.get().getActivity().getId() != reservationDTO.activityId()) return -1;
         Optional<Activity> activity = activityRepository.findById(reservationDTO.activityId());
-        if (activity.isEmpty()) return 0;
+        if (activity.isEmpty()) return -1;
         reservation.setActivity(activity.get());
         reservation.setTimeSlot(timeSlot.get());
+        if (availabilityRepository.isNumberOfPeopleIsTooHigh(reservation)) return -2;
         return reservationRepository.save(reservation).getId();
     }
 

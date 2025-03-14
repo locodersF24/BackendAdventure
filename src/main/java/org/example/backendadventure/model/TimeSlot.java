@@ -1,6 +1,7 @@
 package org.example.backendadventure.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.persistence.*;
 
 import java.time.LocalTime;
@@ -22,6 +23,7 @@ public class TimeSlot {
     private Activity activity;
 
     @Transient
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private Integer available;
 
     public int getId() {
