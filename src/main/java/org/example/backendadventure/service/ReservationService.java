@@ -1,4 +1,6 @@
 package org.example.backendadventure.service;
+import org.example.backendadventure.model.Activity;
+import org.example.backendadventure.model.Equipment;
 import org.example.backendadventure.model.Reservation;
 import org.example.backendadventure.repository.ReservationRepository;
 import org.springframework.stereotype.Service;
@@ -23,8 +25,15 @@ public class ReservationService {
     }
 
     public Map<String, String> getAvailability(String activity, LocalDate date, int numberOfPeople) {
-        List<Reservation> reservations = reservationRepository.findAvailability(activity, date);
+        return calculateAvailability(activity, date, 20);
+    }
 
+    public Map<String, String> updateAvailability(String activity, LocalDate date, int numberOfPeople) {
+        return calculateAvailability(activity, date, numberOfPeople);
+    }
+
+    private Map<String, String> calculateAvailability(String activity, LocalDate date, int maxPeople) {
+        List<Reservation> reservations = reservationRepository.findAvailability(activity, date);
         List<LocalTime> availableTime = List.of(
                 LocalTime.of(8, 0),
                 LocalTime.of(9, 0),
@@ -32,17 +41,16 @@ public class ReservationService {
                 LocalTime.of(11, 0));
 
         Map<String, String> availabilityMap = new HashMap<>();
-        int maxNumberOfPeople = 20;
 
         for (LocalTime availableSlot : availableTime) {
-            int bookedSpots = reservations.stream()//en stream af reservationer
-                    .filter(r -> convertTimeToSlot(availableSlot) == r.getTimeSlotCode())//sammenligner tidskode med timeslot fra r (reservationen)
-                    .mapToInt(Reservation::getNumberOfPeople) //henter numberofpeople for hver reservation
-                    .sum(); //summerer mængden af numberofpeople
+            int bookedSpots = reservations.stream()
+                    .filter(r -> convertTimeToSlot(availableSlot) == r.getTimeSlotCode())
+                    .mapToInt(Reservation::getNumberOfPeople)
+                    .sum();
 
             if (bookedSpots == 0) {
                 availabilityMap.put(availableSlot.toString(), "available");
-            } else if (bookedSpots > 0 && bookedSpots < maxNumberOfPeople) {
+            } else if (bookedSpots > 0 && bookedSpots < maxPeople) {
                 availabilityMap.put(availableSlot.toString(), "limited availability");
             } else {
                 availabilityMap.put(availableSlot.toString(), "unavailable");

@@ -23,6 +23,10 @@ public class Activity {
     @JsonBackReference
     private Set<Reservation> reservations = new HashSet<>();
 
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "activity")
+    @JsonBackReference
+    private Set<Equipment> equipments = new HashSet<>();
+
     public Activity() {}
 
     public Activity(String name, int maxNumberOfPeople, int ageLimit) {
@@ -30,6 +34,7 @@ public class Activity {
         this.maxNumberOfPeople = maxNumberOfPeople;
         this.ageLimit = ageLimit;
     }
+
 
     public int getId() {
         return id;
