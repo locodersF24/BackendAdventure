@@ -20,8 +20,7 @@ public class DevInitData implements CommandLineRunner {
     public void run(String... args) throws InterruptedException {
         setupLoginProfiles();
         setupActivities();
-        Thread.sleep(1000);
-        generateKeySmashReservations(10, 1); // Creates 10 reservations over 1 days (first day is today).
+        generateKeySmashReservations(30, 1); // Creates 30 reservations over 1 days (first day is today).
     }
 
     // Attributes
@@ -64,20 +63,27 @@ public class DevInitData implements CommandLineRunner {
     private void setupActivities() {
 
         // Making activities
-        List<String> names = List.of("Go-kart", "Minigolf", "Paintball", "Sumo Wrestling");
-        for (String name : names) {
+        List<String> names = List.of("Climbing", "Go-kart", "Minigolf", "Sumo Wrestling");
+        List<Integer> maxes = List.of(6, 8, 4, 2);
+        List<Integer> minutes = List.of(60, 30, 90, 45);
+        List<Integer> ages = List.of(10, 10, 10, 10);
+        for (int i = 0; i < 4; i++) {
             Activity activity = new Activity();
-            activity.setName(name);
-            activity.setMaxNumberOfPeople(10);
-            activity.setAgeLimit(10);
+            activity.setName(names.get(i));
+            activity.setMaxNumberOfPeople(maxes.get(i));
+            activity.setAgeLimit(ages.get(i));
             activityRepository.save(activity);
 
-            // Making time slots: "08:00-09:00" to "15:00-16:00"
-            // Note: Time slots can differ based on activity, but here they are similar.
+            // Making time slots
+            int startTime = 10 * 60; // 10:00
+            int endTimeOfDay = 16 * 60; // 16:00
             for (int j = 0; j < 8; j++) {
+                startTime += minutes.get(i) * j;
+                int endTimeOfActivity = startTime + minutes.get(i);
+                if (endTimeOfActivity > endTimeOfDay) break;
                 TimeSlot timeSlot = new TimeSlot();
-                timeSlot.setStartTime(LocalTime.of(8 + j, 0));
-                timeSlot.setEndTime(LocalTime.of(9 + j, 0));
+                timeSlot.setStartTime(timeFromMinutes(startTime));
+                timeSlot.setEndTime(timeFromMinutes(endTimeOfActivity));
                 timeSlot.setActivity(activity);
                 timeSlotRepository.save(timeSlot);
             }
@@ -86,11 +92,8 @@ public class DevInitData implements CommandLineRunner {
     }
     
     private void generateKeySmashReservations(int amount, int days) {
-        List<Activity> activities = activityRepository.findAll();
+        List<TimeSlot> timeSlots = timeSlotRepository.findAll();
         for (int i = 0; i < amount; i++) {
-            Activity activity = activities.get(random.nextInt(activities.size()));
-            List<TimeSlot> timeSlots = activity.getTimeSlots();
-
             ContactPerson contactPerson = new ContactPerson();
             contactPerson.setFirstName(randomLetters(5));
             contactPerson.setLastName(randomLetters(5));
@@ -100,7 +103,6 @@ public class DevInitData implements CommandLineRunner {
 
             Reservation reservation = new Reservation();
             reservation.setContactPerson(contactPerson);
-            reservation.setActivity(activity);
             reservation.setTimeSlot(timeSlots.get(random.nextInt(timeSlots.size())));
             reservation.setDate(LocalDate.now().plusDays(random.nextInt(days)));
             reservation.setNumberOfPeople(random.nextInt(9) + 1); // 1-9 people
@@ -109,6 +111,12 @@ public class DevInitData implements CommandLineRunner {
     }
 
     // Auxiliary methods
+    private LocalTime timeFromMinutes(int minutes) {
+        int hour = minutes / 60;
+        int minute = minutes % 60;
+        return LocalTime.of(hour, minute);
+    }
+
     private String randomLetters(int length) {
         List<Character> letters = List.of('a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z');
         StringBuilder s = new StringBuilder();

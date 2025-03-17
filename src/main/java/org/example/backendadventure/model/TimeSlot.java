@@ -1,6 +1,5 @@
 package org.example.backendadventure.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.persistence.*;
 
@@ -19,12 +18,11 @@ public class TimeSlot {
 
     @ManyToOne
     @JoinColumn(nullable = false)
-    @JsonBackReference
     private Activity activity;
 
     @Transient
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private Integer available;
+    private Integer availableNumberOfPeople;
 
     public int getId() {
         return id;
@@ -58,11 +56,11 @@ public class TimeSlot {
         this.activity = activity;
     }
 
-    public Integer getAvailable() {
-        return available;
+    public Integer getAvailableNumberOfPeople() {
+        return availableNumberOfPeople;
     }
 
-    public void setAvailable(Integer available) {
-        this.available = available;
+    public void setAvailableNumberOfPeople(Integer availableNumberOfPeople) {
+        this.availableNumberOfPeople = availableNumberOfPeople;
     }
 }

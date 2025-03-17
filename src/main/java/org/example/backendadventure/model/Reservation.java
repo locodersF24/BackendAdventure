@@ -20,9 +20,6 @@ public class Reservation {
     private TimeSlot timeSlot;
     @ManyToOne
     @JoinColumn(nullable = false)
-    private Activity activity;
-    @ManyToOne
-    @JoinColumn(nullable = false)
     private ContactPerson contactPerson;
 
     public int getId() {
@@ -55,14 +52,6 @@ public class Reservation {
 
     public void setTimeSlot(TimeSlot timeSlot) {
         this.timeSlot = timeSlot;
-    }
-
-    public Activity getActivity() {
-        return activity;
-    }
-
-    public void setActivity(Activity activity) {
-        this.activity = activity;
     }
 
     public ContactPerson getContactPerson() {

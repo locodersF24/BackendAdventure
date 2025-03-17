@@ -1,9 +1,6 @@
 package org.example.backendadventure.model;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-
-import java.util.List;
 
 @Entity
 public class Activity {
@@ -17,10 +14,6 @@ public class Activity {
     private int maxNumberOfPeople;
     @Column(nullable = false)
     private int ageLimit;
-
-    @OneToMany(mappedBy = "activity", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    @JsonManagedReference
-    private List<TimeSlot> timeSlots;
 
     public int getId() {
         return id;
@@ -52,14 +45,6 @@ public class Activity {
 
     public void setAgeLimit(int ageLimit) {
         this.ageLimit = ageLimit;
-    }
-
-    public List<TimeSlot> getTimeSlots() {
-        return timeSlots;
-    }
-
-    public void setTimeSlots(List<TimeSlot> timeSlots) {
-        this.timeSlots = timeSlots;
     }
 
 }

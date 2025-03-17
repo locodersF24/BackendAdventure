@@ -24,9 +24,9 @@ public class ActivityRestController {
         return ResponseEntity.ok(activityService.getActivities());
     }
 
-    @GetMapping("/activities/{id}/timeslots")
-    public ResponseEntity<List<TimeSlot>> getTimeSlots(@PathVariable int id, @RequestParam(required = false) LocalDate date) {
-        return ResponseEntity.ok(activityService.getTimeSlots(id, date));
+    @GetMapping("/activities/timeslots")
+    public ResponseEntity<List<TimeSlot>> getTimeSlots(@RequestParam LocalDate date) {
+        return ResponseEntity.ok(activityService.getTimeSlotsWithAvailability(date));
     }
 
 }
